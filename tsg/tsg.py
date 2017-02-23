@@ -11,13 +11,31 @@ class Base():
         self.idNo = Base.counter
 
     @classmethod
-    def makeArryString(cls, key, value):
+    def makeArrayFromKeyValue(cls, key, value):
         specLine = ''
         specLine += 'array(' + key + ', '
         if type(value) is str:
             specLine += '\'' + value + '\''
+        elif type(value) is list:
+            specLine += Base.makeArrayFromList(value)
         else:
             specLine += str(value)
+        specLine += ')'
+        return specLine
+
+    @classmethod
+    def makeArrayFromList(cls, list):
+        specLine = ''
+        specLine += 'array('
+        for value in list:
+            if type(value) is str:
+                specLine += '\'' + value + '\''
+            elif type(value) is list:
+                specLine += Base.makeArrayFromList(value)
+            else:
+                specLine += str(value)
+            if value != list[-1]:
+                specLine += ', '
         specLine += ')'
         return specLine
 
@@ -43,7 +61,7 @@ class Symbol(Base):
 
         if self.kwargs != None:
             for key, value in self.kwargs.items():
-                specLine += Base.makeArryString(key, value)
+                specLine += Base.makeArrayFromKeyValue(key, value)
                 specLine += ', '
 
         specLine = specLine.strip(', ')
@@ -63,7 +81,7 @@ class Section(Base):
 
         if self.kwargs != None:
             for key, value in self.kwargs.items():
-                specLine += Base.makeArryString(key, value)
+                specLine += Base.makeArrayFromKeyValue(key, value)
                 specLine += ', '
 
         specLine = specLine.strip(', ')

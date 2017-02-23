@@ -38,6 +38,7 @@ class RoutedInterface(Section):
 class Device(NSection):
     name = T_ATOM()
     enable = T_BOOLEAN()
+    deviceType = T_TEXT('S_CHOICE', choices = ['KryApp 9411 - M100', 'KryApp 9411 - C200', 'KryApp 9411 - R200', 'KryApp 9411 - R210', 'KryApp 9411 - H200', 'KryApp 9411 - H210', 'KryApp 9411 - H300'])
     mgmt1 = RoutedInterface()
     mgmt2 = RoutedInterface()
 
