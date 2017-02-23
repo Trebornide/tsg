@@ -35,12 +35,23 @@ class RoutedInterface(Section):
     networks = Networks()
     dhcp = DHCP()
 
+class PortPair(NSection):
+    enable = T_BOOLEAN()
+    name = T_TEXT()
+
+class PortPairs(Section):
+    portpair = PortPair()
+
 class Device(NSection):
     name = T_ATOM()
     enable = T_BOOLEAN()
     deviceType = T_TEXT('S_CHOICE', choices = ['KryApp 9411 - M100', 'KryApp 9411 - C200', 'KryApp 9411 - R200', 'KryApp 9411 - R210', 'KryApp 9411 - H200', 'KryApp 9411 - H210', 'KryApp 9411 - H300'])
-    mgmt1 = RoutedInterface()
+    version = T_TEXT('S_CHOICE', choices = ['4.0.5', '4.1', '4.2'], default = '4.1')
+    failover = T_BOOLEAN(default = False)
+
+    mgmt1 = RoutedInterface(enableIf = ('failover', '==', True))
     mgmt2 = RoutedInterface()
+    portpair = PortPair()
 
 class Devices(Section):
     device = Device()
