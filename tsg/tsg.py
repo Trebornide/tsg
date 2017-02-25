@@ -1,4 +1,5 @@
 from copy import deepcopy
+from tsg import *
 from operator import itemgetter, attrgetter, methodcaller
 
 class Base():
@@ -57,7 +58,7 @@ class Symbol(Base):
             specLine += ', '
 
         specLine += self.tType + ', '
-        specLine += self.sType + ', '
+        specLine += S_Type.tostring(self.sType) + ', '
 
         if self.kwargs != None:
             for key, value in self.kwargs.items():
@@ -99,7 +100,12 @@ class Section(Base):
         attrList = []
         for k1, v1 in items:
             if isinstance(v1, Base):
+
+                # All atributes with base class Base has a running number
+                # telling the order they where created.
                 attrList.append((v1.idNo, k1, v1))
+
+        # Sort attributes in the same order as they where created
         sortedAttrList = sorted(attrList)
 
         # Iterate over sections attributes and recurse into sub-nodes.

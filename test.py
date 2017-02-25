@@ -1,20 +1,20 @@
 from tsg import *
 
-class CA(NSection):
-    name = T_ATOM()
-    cn = T_CN(displayName='CA Common Name')
-    pem = T_PEM()
-
 class CAs(Section):
+    class CA(NSection):
+        name = T_ATOM()
+        cn = T_CN(displayName='CA Common Name')
+        pem = T_PEM()
+
     ca = CA()
 
-class Identity(NSection):
-    name = T_ATOM()
-    cn = T_CN_PATTERN('S_LIST', max=32, optional=True)
-    uid = T_UID_PATTERN('S_LIST', max=32, optional=True)
-    email = T_EMAIL_PATTERN('S_LIST', max=32, optional=True)
-
 class Identities(Section):
+    class Identity(NSection):
+        name = T_ATOM()
+        cn = T_CN_PATTERN(S_LIST, max=32, optional=True)
+        uid = T_UID_PATTERN(S_LIST, max=32, optional=True)
+        email = T_EMAIL_PATTERN(S_LIST, max=32, optional=True)
+
     identities = Identity(max = 1024)
 
 class Networks(NSection):
@@ -45,8 +45,8 @@ class PortPairs(Section):
 class Device(NSection):
     name = T_ATOM()
     enable = T_BOOLEAN()
-    deviceType = T_TEXT('S_CHOICE', choices = ['KryApp 9411 - M100', 'KryApp 9411 - C200', 'KryApp 9411 - R200', 'KryApp 9411 - R210', 'KryApp 9411 - H200', 'KryApp 9411 - H210', 'KryApp 9411 - H300'])
-    version = T_TEXT('S_CHOICE', choices = ['4.0.5', '4.1', '4.2'], default = '4.1')
+    deviceType = T_TEXT(S_CHOICE, choices = ['KryApp 9411 - M100', 'KryApp 9411 - C200', 'KryApp 9411 - R200', 'KryApp 9411 - R210', 'KryApp 9411 - H200', 'KryApp 9411 - H210', 'KryApp 9411 - H300'])
+    version = T_TEXT(S_CHOICE, choices = ['4.0.5', '4.1', '4.2'], default = '4.1')
     failover = T_BOOLEAN(default = False)
 
     mgmt1 = RoutedInterface(enableIf = ('failover', '==', True))
@@ -58,7 +58,7 @@ class Devices(Section):
 
 class Configuration(Section):
     ca = CAs(displayName='CA')
-    identities = Identities()
+    identitie = Identities()
     device = Devices()
 
 conf = Configuration()
