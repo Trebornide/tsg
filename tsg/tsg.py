@@ -73,7 +73,7 @@ class Symbol(Base):
 
 
     def getSpec(self, path=[]):
-        specLine = 'symbol('
+        specLine = ' symbol('
 
         for p in path:
             specLine += '\'' + p + '\''
@@ -87,7 +87,7 @@ class Symbol(Base):
                 specLine += Base.makeArrayFromKeyValue(key, value)
                 specLine += ', '
 
-        specLine = specLine.strip(', ')
+        specLine = specLine.rstrip(', ')
         specLine += ');\n'
         return specLine
 
@@ -99,6 +99,8 @@ class Symbol(Base):
             for key, value in self.kwargs.items():
                 schema += makeKeyvalueSchemaLine(indent, key, value )
                 schema += ', '
+        schema.rstrip(',\n')
+        schema += '\n'
         return schema
 
 
@@ -178,6 +180,7 @@ class Section(Base):
             schema += makeSchemaLine(indent, '"' + k1 + '": {')
             schema += v1.getSchema(indent + 4)
             schema += makeSchemaLine(indent, '},')
+        schema.rstrip(',')
         return schema
 
 class NSection(Section):
