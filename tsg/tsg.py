@@ -2,11 +2,21 @@ from copy import deepcopy
 from tsg import *
 from operator import itemgetter, attrgetter, methodcaller
 
+def makeSchemaLine(indent, line):
+    schemaLine = ''
+    for i in range(1, indent):
+        schemaLine += ' '
+    schemaLine += line
+    schemaLine += '\n'
+    return schemaLine
+
+
 class Base():
     counter = 0;
 
-    def __init__(self, *args, **kwargs):
-        #        self.displayName = displayName
+
+    def __init__(self, *args, displayName=None,**kwargs):
+        self.displayName = displayName
         self.kwargs = kwargs
         Base.counter += 1
         self.idNo = Base.counter
@@ -43,11 +53,7 @@ class Base():
 class Symbol(Base):
 
     def __init__(self, *args, **kwargs):
-        # self.tType = tType
-        # self.sType = sType
-        super().__init__(self, *args, **kwargs)
-
-    #
+       super().__init__(self, *args, **kwargs)
 
 
     def getSpec(self, path=[]):
@@ -90,8 +96,14 @@ class Section(Base):
         return specLine
 
     def getSpec(self, path = []):
+        spec = ''
 
-        spec = self.getOwnSpec(path)
+        # Comment spec file using class doc
+        if self.__doc__ != None:
+            for docLine in self.__doc__.split('\n'):
+                spec += '# ' + docLine.strip() + '\n'
+
+        spec += self.getOwnSpec(path)
 
         items = self.__class__.__dict__.items()
 
@@ -110,14 +122,26 @@ class Section(Base):
 
         # Iterate over sections attributes and recurse into sub-nodes.
         for dummy, k1, v1 in sortedAttrList:
-            if isinstance(v1, Base):
-                nextLevelPath = deepcopy(path)
-                nextLevelPath.append(k1)
-                spec += v1.getSpec(nextLevelPath)
+            nextLevelPath = deepcopy(path)
+            nextLevelPath.append(k1)
+            spec += v1.getSpec(nextLevelPath)
         return spec
+
+    def getSchema(self, indent=0):
+        pass
 
 class NSection(Section):
     pass
 
 class Configuration(Section):
-    pass
+    def getSchema(self, indent=0):
+        schema = makeSchemaLine(indent, '{')
+        indent += 4
+        schema += makeSchemaLine(indent, '"$schema": "http://json-schema.org/draft-04/schema#"')
+        # TODO: Definitions
+        indent -= 4
+
+        schema += makeSchemaLine(indent, '}')
+        return schema
+
+
