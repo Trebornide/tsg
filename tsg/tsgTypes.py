@@ -1,15 +1,11 @@
 from tsg import *
 
-class S_Type(EnumBase): S_VALUE, S_LIST, S_CHOICE = range(3)
-
-S_VALUE = S_Type.S_VALUE
-S_LIST= S_Type.S_LIST
-S_CHOICE = S_Type.S_CHOICE
 
 class T_ATOM(Symbol):
     def __init__(self, sType=S_VALUE, *args, **kwargs):
         self.tType = 'T_ATOM'
         self.sType = sType
+        self.type = 'string'
         super().__init__(self, *args, **kwargs)
 
 class T_TEXT(Symbol):
@@ -24,10 +20,28 @@ class T_BOOLEAN(Symbol):
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 
+class T_DECIMAL(Symbol):
+    def __init__(self, sType=S_VALUE, *args, **kwargs):
+        self.tType = 'T_DECIMAL'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)
+
 
 class T_IP(Symbol):
     def __init__(self, sType=S_VALUE, *args, **kwargs):
         self.tType = 'T_IP'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)
+
+class T_IP_REDUCED(Symbol):
+    def __init__(self, sType=S_VALUE, *args, **kwargs):
+        self.tType = 'T_IP_REDUCED'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)
+
+class T_PORT(Symbol):
+    def __init__(self, sType=S_VALUE, *args, **kwargs):
+        self.tType = 'T_PORT'
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 
@@ -55,6 +69,12 @@ class T_CN_PATTERN(Symbol):
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 
+class T_DOMAIN_NAME(Symbol):
+    def __init__(self, sType=S_VALUE, *args, **kwargs):
+        self.tType = 'T_DOMAIN_NAME'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)
+
 class T_UID_PATTERN(Symbol):
     def __init__(self, sType=S_VALUE, *args, **kwargs):
         self.tType = 'T_UID_PATTERN'
@@ -64,6 +84,12 @@ class T_UID_PATTERN(Symbol):
 class T_EMAIL_PATTERN(Symbol):
     def __init__(self, sType=S_VALUE, *args, **kwargs):
         self.tType = 'T_EMAIL_PATTERN'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)
+
+class T_SECTION(Symbol):
+    def __init__(self, sType=S_VALUE, *args, **kwargs):
+        self.tType = 'T_SECTION'
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 

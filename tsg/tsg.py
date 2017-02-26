@@ -2,13 +2,29 @@ from copy import deepcopy
 from tsg import *
 from operator import itemgetter, attrgetter, methodcaller
 
+class S_Type(EnumBase): S_VALUE, S_LIST, S_CHOICE, S_CHOICE_MULTI = range(4)
+S_VALUE = S_Type.S_VALUE
+S_LIST= S_Type.S_LIST
+S_CHOICE = S_Type.S_CHOICE
+S_CHOICE_MULTI = S_Type.S_CHOICE_MULTI
+
 def makeSchemaLine(indent, line):
-    schemaLine = ''
+    schema_line = ''
     for i in range(1, indent):
-        schemaLine += ' '
-    schemaLine += line
-    schemaLine += '\n'
-    return schemaLine
+        schema_line += ' '
+    schema_line += line
+    schema_line += ',\n'
+    return schema_line
+
+def makeKeyvalueSchemaLine(indent, key, value):
+    key_value_string = ''
+    key_value_string += '"' + key + '": '
+    if type(value) is str:
+        key_value_string += '"' + value + '"'
+    else:
+        key_value_string += str(value)
+    schema_line = makeSchemaLine(indent, key_value_string)
+    return schema_line
 
 
 class Base():
@@ -75,6 +91,17 @@ class Symbol(Base):
         specLine += ');\n'
         return specLine
 
+    def getSchema(self, indent):
+        schema = ''
+        schema += makeSchemaLine(indent, 'type: "' + self.type + '"' )
+        schema += makeSchemaLine(indent, 't_type: "' + self.tType + '"' )
+        if self.kwargs != None:
+            for key, value in self.kwargs.items():
+                schema += makeKeyvalueSchemaLine(indent, key, value )
+                schema += ', '
+        return schema
+
+
 class Section(Base):
 
     def getOwnSpec(self, path=[]):
@@ -128,7 +155,30 @@ class Section(Base):
         return spec
 
     def getSchema(self, indent=0):
-        pass
+        schema = ''
+        schema += makeSchemaLine(indent, '"type": "object"')
+        schema += makeSchemaLine(indent, '"additionalProperties": False')
+
+        items = self.__class__.__dict__.items()
+
+        # Find attributes with base class Base() and
+        # sort them in the order they where created.
+        attrList = []
+        for k1, v1 in items:
+            if isinstance(v1, Base):
+                # All atributes with base class Base has a running number
+                # telling the order they where created.
+                attrList.append((v1.idNo, k1, v1))
+
+        # Sort attributes in the same order as they where created
+        sortedAttrList = sorted(attrList)
+
+        # Iterate over sections attributes and recurse into sub-nodes.
+        for dummy, k1, v1 in sortedAttrList:
+            schema += makeSchemaLine(indent, '"' + k1 + '": {')
+            schema += v1.getSchema(indent + 4)
+            schema += makeSchemaLine(indent, '},')
+        return schema
 
 class NSection(Section):
     pass
@@ -138,7 +188,7 @@ class Configuration(Section):
         schema = makeSchemaLine(indent, '{')
         indent += 4
         schema += makeSchemaLine(indent, '"$schema": "http://json-schema.org/draft-04/schema#"')
-        # TODO: Definitions
+        schema += super().getSchema(indent)
         indent -= 4
 
         schema += makeSchemaLine(indent, '}')
