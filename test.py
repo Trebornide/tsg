@@ -64,6 +64,9 @@ class CommonConfigs(Section):
             timeZone = T_ATOM(S_CHOICE, choices=time_zones)
 
         class NTP(Section):
+            '''
+            Network Time Protocol
+            '''
             class Key(NSection):
                 name = T_TEXT()
                 number = T_DECIMAL()
@@ -80,7 +83,7 @@ class CommonConfigs(Section):
         name    = T_ATOM()
         cn      = T_CN(displayName='CA Common Name')
         pem     = T_PEM()
-        cadmin  = CAdmin()
+        cadmin  = CAdmin(displayNamez='CAdmin client settings')
         cert    = Certificates()
         syslog  = Syslog()
         general = General()

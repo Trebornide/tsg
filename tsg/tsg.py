@@ -8,22 +8,22 @@ S_LIST= S_Type.S_LIST
 S_CHOICE = S_Type.S_CHOICE
 S_CHOICE_MULTI = S_Type.S_CHOICE_MULTI
 
-def makeSchemaLine(indent, line):
+def makeSchemaLine(indent, line, line_end=',\n'):
     schema_line = ''
     for i in range(1, indent):
         schema_line += ' '
     schema_line += line
-    schema_line += ',\n'
+    schema_line += line_end
     return schema_line
 
-def makeKeyvalueSchemaLine(indent, key, value):
+def makeKeyValueSchemaLine(indent, key, value, line_end=',\n'):
     key_value_string = ''
     key_value_string += '"' + key + '": '
     if type(value) is str:
         key_value_string += '"' + value + '"'
     else:
         key_value_string += str(value)
-    schema_line = makeSchemaLine(indent, key_value_string)
+    schema_line = makeSchemaLine(indent, key_value_string, line_end)
     return schema_line
 
 
@@ -93,13 +93,12 @@ class Symbol(Base):
 
     def getSchema(self, indent):
         schema = ''
-        schema += makeSchemaLine(indent, 'type: "' + self.type + '"' )
-        schema += makeSchemaLine(indent, 't_type: "' + self.tType + '"' )
+        schema += makeKeyValueSchemaLine(indent, 'type', self.type )
+        schema += makeKeyValueSchemaLine(indent, 't_type', self.tType)
         if self.kwargs != None:
             for key, value in self.kwargs.items():
-                schema += makeKeyvalueSchemaLine(indent, key, value )
-                schema += ', '
-        schema.rstrip(',\n')
+                schema += makeKeyValueSchemaLine(indent, key, value)
+        schema = schema.rstrip(',\n')
         schema += '\n'
         return schema
 
@@ -158,8 +157,8 @@ class Section(Base):
 
     def getSchema(self, indent=0):
         schema = ''
-        schema += makeSchemaLine(indent, '"type": "object"')
-        schema += makeSchemaLine(indent, '"additionalProperties": False')
+        schema += makeKeyValueSchemaLine(indent, 'type', 'object')
+        schema += makeKeyValueSchemaLine(indent, 'additionalProperties', False)
 
         items = self.__class__.__dict__.items()
 
@@ -175,12 +174,22 @@ class Section(Base):
         # Sort attributes in the same order as they where created
         sortedAttrList = sorted(attrList)
 
+        schema += makeSchemaLine(indent, '"properties": {', '\n')
+        indent += 4
+
         # Iterate over sections attributes and recurse into sub-nodes.
         for dummy, k1, v1 in sortedAttrList:
-            schema += makeSchemaLine(indent, '"' + k1 + '": {')
+            schema += makeSchemaLine(indent, '"' + k1 + '": {', '\n')
             schema += v1.getSchema(indent + 4)
-            schema += makeSchemaLine(indent, '},')
-        schema.rstrip(',')
+        schema = schema.rstrip(',\n')
+        schema += '\n'
+
+        # End of properties block
+        schema += makeSchemaLine(indent, '}', '\n')
+        indent -= 4
+
+        # End of object block
+        schema += makeSchemaLine(indent, '}', '\n')
         return schema
 
 class NSection(Section):
@@ -188,13 +197,13 @@ class NSection(Section):
 
 class Configuration(Section):
     def getSchema(self, indent=0):
-        schema = makeSchemaLine(indent, '{')
+        schema = makeSchemaLine(indent, '{', '\n')
         indent += 4
         schema += makeSchemaLine(indent, '"$schema": "http://json-schema.org/draft-04/schema#"')
         schema += super().getSchema(indent)
         indent -= 4
 
-        schema += makeSchemaLine(indent, '}')
+        schema += makeSchemaLine(indent, '}', '')
         return schema
 
 
