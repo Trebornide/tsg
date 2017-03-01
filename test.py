@@ -151,13 +151,39 @@ class Devices(Section):
 
     device = Device()
 
-class Conf(Configuration):
+class Tunnelgroups(Section):
+    '''
+    Group of tunnels with common characteristics
+    '''
+    class Tunnelgroup(NSection):
+        class Tunnel(Section):
+            class TunnelEnd(Section):
+                device = T_SECTION(S_CHOICE, choices='section', section=[':device:device'], default=None )
+                cnpattern = T_CN_PATTERN()
+                portpair = T_ATOM()
+
+            enable = T_BOOLEAN()
+            name = T_TEXT()
+            a = TunnelEnd()
+            b = TunnelEnd()
+
+        enable = T_BOOLEAN()
+        name = T_TEXT()
+        type = T_TEXT(S_CHOICE, choices=['Routed', 'Bridged', 'Link'])
+        softlimit = T_DECIMAL()
+        hardlimit = T_DECIMAL()
+        tunnel = Tunnel()
+
+    tunnelgroup = Tunnelgroup()
+
+class NetworkConfigration(Configuration):
     ca = CAs(displayName='CA')
     identity = Identities()
     common = CommonConfigs()
     device = Devices()
+    tunnelgroup = Tunnelgroups()
 
-conf = Conf()
+conf = NetworkConfigration()
 
 spec = conf.getSpec()
 print(spec)

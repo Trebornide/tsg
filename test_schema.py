@@ -1,5 +1,5 @@
 from tsg import *
-from test import Conf
+from test import NetworkConfigration
 
 class SubConf(Section):
     s1 = T_ATOM()
@@ -8,7 +8,7 @@ class SubConf(Section):
 #    myAtom = T_ATOM(title='MyTitle', format='T_ATOM', layoutHint=('lowercase', ('vertical', 7)))
 #    sub = SubConf()
 
-conf = Conf()
+conf = NetworkConfigration()
 
 schema = conf.getSchema()
 print (schema)
