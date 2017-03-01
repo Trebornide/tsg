@@ -34,8 +34,11 @@ class Base():
     def __init__(self, *args, displayName=None,**kwargs):
         self.displayName = displayName
         self.kwargs = kwargs
+        self.tType = self.__class__.__name__
+
+        # id_no is used to maintain the order objects are created in.
         Base.counter += 1
-        self.idNo = Base.counter
+        self.id_no = Base.counter
 
     @classmethod
     def makeArrayFromKeyValue(cls, key, value):
@@ -143,7 +146,7 @@ class Section(Base):
 
                 # All atributes with base class Base has a running number
                 # telling the order they where created.
-                attrList.append((v1.idNo, k1, v1))
+                attrList.append((v1.id_no, k1, v1))
 
         # Sort attributes in the same order as they where created
         sortedAttrList = sorted(attrList)
@@ -169,7 +172,7 @@ class Section(Base):
             if isinstance(v1, Base):
                 # All atributes with base class Base has a running number
                 # telling the order they where created.
-                attrList.append((v1.idNo, k1, v1))
+                attrList.append((v1.id_no, k1, v1))
 
         # Sort attributes in the same order as they where created
         sortedAttrList = sorted(attrList)
@@ -199,7 +202,7 @@ class Configuration(Section):
     def getSchema(self, indent=0):
         schema = makeSchemaLine(indent, '{', '\n')
         indent += 4
-        schema += makeSchemaLine(indent, '"$schema": "http://json-schema.org/draft-04/schema#"')
+        schema += makeSchemaLine(indent, '"$schema": "http://tutus.se/draft-01/farist-config-schema#"')
         schema += super().getSchema(indent)
         indent -= 4
 
