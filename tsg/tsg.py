@@ -1,8 +1,9 @@
-from copy import deepcopy
 from tsg import *
 from operator import itemgetter, attrgetter, methodcaller
 
 class S_Type(EnumBase): S_VALUE, S_LIST, S_CHOICE, S_CHOICE_MULTI = range(4)
+
+# Make constants just to make schema look nice
 S_VALUE = S_Type.S_VALUE
 S_LIST= S_Type.S_LIST
 S_CHOICE = S_Type.S_CHOICE
@@ -180,19 +181,20 @@ class Section(Base):
         schema += makeSchemaLine(indent, '"properties": {', '\n')
         indent += 4
 
-        # Iterate over sections attributes and recurse into sub-nodes.
+        # Iterate over properties and recurse into sub-nodes.
         for dummy, k1, v1 in sortedAttrList:
             schema += makeSchemaLine(indent, '"' + k1 + '": {', '\n')
             schema += v1.getSchema(indent + 4)
+            schema += makeSchemaLine(indent, '}')
+
+        # Remove ',' from last attribute in tuple
         schema = schema.rstrip(',\n')
         schema += '\n'
 
         # End of properties block
-        schema += makeSchemaLine(indent, '}', '\n')
         indent -= 4
-
-        # End of object block
         schema += makeSchemaLine(indent, '}', '\n')
+
         return schema
 
 class NSection(Section):

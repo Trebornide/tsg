@@ -169,7 +169,7 @@ class Tunnelgroups(Section):
             a = TunnelEnd()
             b = TunnelEnd()
 
-        enable = T_BOOLEAN()
+        enable = T_BOOLEAN(tooltip='Kalle')
         name = T_TEXT()
         type = T_TEXT(S_CHOICE, choices=['Routed', 'Bridged', 'Link'])
         softlimit = T_DECIMAL()
