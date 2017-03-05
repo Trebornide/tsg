@@ -198,6 +198,12 @@ class Section(Base):
 class NSection(Section):
     pass
 
+class OneOfSection(Section):
+    pass
+
+class AnyOfSection(Section):
+    pass
+
 class Configuration(Section):
     def getSchema(self, indent=0):
         schema = makeSchemaLine(indent, '{', '\n')

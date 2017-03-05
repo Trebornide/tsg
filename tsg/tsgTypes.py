@@ -97,3 +97,9 @@ class T_IP(Symbol):
         self.type = 'string'
         self.sType = sType
         super().__init__(self, *args, **kwargs)
+
+class T_URL(Symbol):
+    def __init__(self,  sType=S_VALUE, *args, **kwargs):
+        self.type = 'string'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)

@@ -23,8 +23,10 @@ class CAs(Section):
     '''
     class CA(NSection):
         name = T_ATOM()
-        cn   = T_CN(displayName='CA Common Name')
-        pem  = T_PEM()
+        cn   = T_CN(title='CA Common Name')
+        location = T_ATOM(S_CHOICE , choices=['Config', 'File', 'Card'] )
+        pem  = T_PEM(title='PEM file')
+        crl = T_URL(optional=True)
 
     ca = CA()
 
@@ -33,7 +35,7 @@ class Identities(Section):
     Administrative identities to manage the devices
     '''
     class Identity(NSection):
-        name  = T_ATOM(displayName='Admin group name', xxx='yyy')
+        name  = T_ATOM(title='Admin group name')
         cn    = T_CN_PATTERN(S_LIST, max=32, optional=True)
         uid   = T_UID_PATTERN(S_LIST, max=32, optional=True)
         email = T_EMAIL_PATTERN(S_LIST, max=32, optional=True)
