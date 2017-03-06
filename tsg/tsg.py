@@ -1,4 +1,6 @@
 from tsg import *
+from copy import deepcopy
+
 from operator import itemgetter, attrgetter, methodcaller
 
 class S_Type(EnumBase): S_VALUE, S_LIST, S_CHOICE, S_CHOICE_MULTI = range(4)
