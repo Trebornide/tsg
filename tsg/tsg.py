@@ -119,6 +119,8 @@ class Section(Base):
 
         if isinstance(self, NSection):
             specLine += 'N_SECTION_NUMBERED' + ', '
+        elif isinstance(self, OneOf):
+            specLine += 'ONEOF_SECTION' + ', '
 
         if self.kwargs != None:
             for key, value in self.kwargs.items():
@@ -202,8 +204,50 @@ class Section(Base):
 class NSection(Section):
     pass
 
-class OneOfSection(Section):
-    pass
+class OneOf(Section):
+    def __init__(self, one_of_list, *args, **kwargs):
+        self.oneOf = one_of_list
+        super().__init__(self, *args, **kwargs)
+
+
+    def getSpec(self, path=[]):
+        spec = ''
+
+        # Comment spec file using class doc
+        if self.__doc__ != None:
+            for docLine in self.__doc__.split('\n'):
+                spec += '# ' + docLine.strip() + '\n'
+
+        spec += self.getOwnSpec(path)
+
+        # Iterate over sections attributes and recurse into sub-nodes.
+        for v1 in self.oneOf:
+            spec += v1.getSpec(path)
+        return spec
+
+
+    def getSchema(self, indent=0):
+        schema = ''
+        schema += makeSchemaLine(indent, '"oneOf": [', '\n')
+        indent += 4
+
+
+        # Iterate over the possible sub-schemas.
+        for v1 in self.oneOf:
+            schema += makeSchemaLine(indent, '{', '\n')
+            schema += v1.getSchema(indent + 4)
+            schema += makeSchemaLine(indent, '}')
+
+        # Remove ',' from last attribute in list
+        schema = schema.rstrip(',\n')
+        schema += '\n'
+
+        # End of oneOf list
+        indent -= 4
+        schema += makeSchemaLine(indent, ']', '\n')
+
+        return schema
+
 
 class AnyOfSection(Section):
     pass
