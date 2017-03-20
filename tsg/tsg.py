@@ -101,6 +101,8 @@ class Symbol(Base):
         schema = ''
         schema += makeKeyValueSchemaLine(indent, 'type', self.type )
         schema += makeKeyValueSchemaLine(indent, 't_type', self.tType)
+
+        # Options
         if self.kwargs != None:
             for key, value in self.kwargs.items():
                 schema += makeKeyValueSchemaLine(indent, key, value)
@@ -228,9 +230,14 @@ class OneOf(Section):
 
     def getSchema(self, indent=0):
         schema = ''
+
+        # Options
+        if self.kwargs != None:
+            for key, value in self.kwargs.items():
+                schema += makeKeyValueSchemaLine(indent, key, value)
+
         schema += makeSchemaLine(indent, '"oneOf": [', '\n')
         indent += 4
-
 
         # Iterate over the possible sub-schemas.
         for v1 in self.oneOf:

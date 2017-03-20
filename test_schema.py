@@ -9,6 +9,9 @@ class SubConf(Section):
     ])
 
 class SubConf2(Section):
+    class Options():
+        description = 'Description of SubConf2'
+
     o2 = OneOf([
         T_IP(),
         T_DECIMAL()
@@ -20,8 +23,8 @@ class Conf(Configuration):
     sub = OneOf([
         T_DOMAIN_NAME(),
         SubConf(),
-        SubConf2()
-    ])
+        SubConf2(title = 'Kalle')
+    ], description='Why choose?')
 
 #conf = NetworkConfigration()
 conf = Conf()
