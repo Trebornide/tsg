@@ -36,7 +36,7 @@ class Base():
 
     def __init__(self, *args, displayName=None,**kwargs):
         self.displayName = displayName
-        self.kwargs = kwargs
+        self.argument_options = kwargs
         self.tType = self.__class__.__name__
 
         # id_no is used to maintain the order objects are created in.
@@ -88,8 +88,8 @@ class Symbol(Base):
         specLine += self.tType + ', '
         specLine += S_Type.tostring(self.sType) + ', '
 
-        if self.kwargs != None:
-            for key, value in self.kwargs.items():
+        if self.argument_options != None:
+            for key, value in self.argument_options.items():
                 specLine += Base.makeArrayFromKeyValue(key, value)
                 specLine += ', '
 
@@ -103,11 +103,12 @@ class Symbol(Base):
         schema += makeKeyValueSchemaLine(indent, 't_type', self.tType)
 
         # Options
-        if self.kwargs != None:
-            for key, value in self.kwargs.items():
+        if self.argument_options != None:
+            for key, value in self.argument_options.items():
                 schema += makeKeyValueSchemaLine(indent, key, value)
         schema = schema.rstrip(',\n')
         schema += '\n'
+
         return schema
 
 
@@ -124,8 +125,8 @@ class Section(Base):
         elif isinstance(self, OneOf):
             specLine += 'ONEOF_SECTION' + ', '
 
-        if self.kwargs != None:
-            for key, value in self.kwargs.items():
+        if self.argument_options != None:
+            for key, value in self.argument_options.items():
                 specLine += Base.makeArrayFromKeyValue(key, value)
                 specLine += ', '
 
@@ -169,6 +170,19 @@ class Section(Base):
         schema = ''
         schema += makeKeyValueSchemaLine(indent, 'type', 'object')
         schema += makeKeyValueSchemaLine(indent, 'additionalProperties', False)
+
+        try:
+           # ToDo class_options = self.Options.
+
+        except:
+            pass
+
+        # Options
+        if self.argument_options != None:
+            for key, value in self.argument_options.items():
+                schema += makeKeyValueSchemaLine(indent, key, value)
+        schema = schema.rstrip(',\n')
+        schema += '\n'
 
         items = self.__class__.__dict__.items()
 
@@ -232,8 +246,8 @@ class OneOf(Section):
         schema = ''
 
         # Options
-        if self.kwargs != None:
-            for key, value in self.kwargs.items():
+        if self.argument_options != None:
+            for key, value in self.argument_options.items():
                 schema += makeKeyValueSchemaLine(indent, key, value)
 
         schema += makeSchemaLine(indent, '"oneOf": [', '\n')
