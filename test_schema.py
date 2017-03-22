@@ -11,6 +11,7 @@ class SubConf(Section):
 class SubConf2(Section):
     class Options():
         description = 'Description of SubConf2'
+        tralala= 'hoho'
 
     o2 = OneOf([
         T_IP(),
@@ -19,11 +20,11 @@ class SubConf2(Section):
 
 
 class Conf(Configuration):
-    myAtom = T_ATOM(title='MyTitle', format='T_ATOM', layoutHint=('lowercase', ('vertical', 7)))
+    myAtom = T_ATOM(title='MyTitle', format='T_ATOM', layoutHint=['lowercase', ('vertical', 7), 88])
     sub = OneOf([
         T_DOMAIN_NAME(),
         SubConf(),
-        SubConf2(title = 'Kalle')
+        SubConf2(title = 'Kalle', tralala = 'overridden')
     ], description='Why choose?')
 
 #conf = NetworkConfigration()

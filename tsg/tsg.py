@@ -114,6 +114,25 @@ class Symbol(Base):
 
 class Section(Base):
 
+    def getOptions(self):
+        options = {}
+
+        try:
+            class_options = self.Options.__dict__.items()
+            for key, value in class_options:
+                if not key.startswith('__'):
+                    options[key] = value
+            pass
+        except:
+            pass
+
+        # Options
+        if self.argument_options != None:
+            for key, value in self.argument_options.items():
+                options[key] = value
+
+        return options
+
     def getOwnSpec(self, path=[]):
         specLine = 'section('
         for p in path:
@@ -125,10 +144,11 @@ class Section(Base):
         elif isinstance(self, OneOf):
             specLine += 'ONEOF_SECTION' + ', '
 
-        if self.argument_options != None:
-            for key, value in self.argument_options.items():
-                specLine += Base.makeArrayFromKeyValue(key, value)
-                specLine += ', '
+        options = self.getOptions()
+
+        for key, value in options.items():
+            specLine += Base.makeArrayFromKeyValue(key, value)
+            specLine += ', '
 
         specLine = specLine.strip(', ')
         specLine += ');\n'
@@ -171,16 +191,11 @@ class Section(Base):
         schema += makeKeyValueSchemaLine(indent, 'type', 'object')
         schema += makeKeyValueSchemaLine(indent, 'additionalProperties', False)
 
-        try:
-           # ToDo class_options = self.Options.
-
-        except:
-            pass
+        options = self.getOptions()
 
         # Options
-        if self.argument_options != None:
-            for key, value in self.argument_options.items():
-                schema += makeKeyValueSchemaLine(indent, key, value)
+        for key, value in options.items():
+            schema += makeKeyValueSchemaLine(indent, key, value)
         schema = schema.rstrip(',\n')
         schema += '\n'
 
