@@ -1,5 +1,6 @@
 from tsg import *
 from copy import deepcopy
+import types
 
 from operator import itemgetter, attrgetter, methodcaller
 
@@ -22,8 +23,14 @@ def makeSchemaLine(indent, line, line_end=',\n'):
 def makeKeyValueSchemaLine(indent, key, value, line_end=',\n'):
     key_value_string = ''
     key_value_string += '"' + key + '": '
-    if type(value) is str:
+    if isinstance(value, str):
         key_value_string += '"' + value + '"'
+    elif isinstance(value, bool):
+        # JSON boolean uses 'true/false' not 'True/False' as in Python
+        if value:
+            key_value_string += 'true'
+        else:
+            key_value_string += 'false'
     else:
         key_value_string += str(value)
     schema_line = makeSchemaLine(indent, key_value_string, line_end)
@@ -47,9 +54,9 @@ class Base():
     def makeArrayFromKeyValue(cls, key, value):
         specLine = ''
         specLine += 'array(' + key + ', '
-        if type(value) is str:
+        if isinstance(value, str):
             specLine += '\'' + value + '\''
-        elif type(value) is list:
+        elif isinstance(value, list):
             specLine += Base.makeArrayFromList(value)
         else:
             specLine += str(value)
@@ -57,17 +64,22 @@ class Base():
         return specLine
 
     @classmethod
-    def makeArrayFromList(cls, list):
+    def makeArrayFromList(cls, a_list):
         specLine = ''
         specLine += 'array('
-        for value in list:
-            if type(value) is str:
+        for value in a_list:
+            if isinstance(value, str):
                 specLine += '\'' + value + '\''
-            elif type(value) is list:
+                # JSON boolean uses 'true/false' not 'True/False' as in Python
+                if value:
+                    specLine += 'true'
+                else:
+                    specLine += 'false'
+            elif isinstance(value, list):
                 specLine += Base.makeArrayFromList(value)
             else:
                 specLine += str(value)
-            if value != list[-1]:
+            if value != a_list[-1]:
                 specLine += ', '
         specLine += ')'
         return specLine
