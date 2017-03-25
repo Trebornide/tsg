@@ -11,6 +11,7 @@ class SubConf(Section):
 class SubConf2(Section):
     class Options():
         description = 'Description of SubConf2'
+        title = 'O_SubConf2'
         tralala= 'hoho'
 
     o2 = OneOf([
@@ -35,3 +36,23 @@ print (schema)
 
 spec = conf.getSpec()
 print (spec)
+
+class Conf1(Configuration):
+    myInt  = T_DECIMAL(title='My number', minimum=3, maximum=88)
+    myString = T_TEXT(title='My string', default='A default')
+
+conf1 = Conf1()
+schema = conf1.getSchema()
+print(schema)
+
+class Conf2(Configuration):
+    value = OneOf([
+        T_DECIMAL(title='My number', minimum=3, maximum=88),
+        T_TEXT(title='My string', default='A default'),
+        SubConf(title='Subconf')
+    ], title='Please select value type')
+    subConf2 = SubConf2(title='Subconf2')
+
+conf2 = Conf2()
+schema = conf2.getSchema()
+print(schema)
