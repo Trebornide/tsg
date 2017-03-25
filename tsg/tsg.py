@@ -208,8 +208,6 @@ class Section(Base):
         # Options
         for key, value in options.items():
             schema += makeKeyValueSchemaLine(indent, key, value)
-        schema = schema.rstrip(',\n')
-        schema += '\n'
 
         items = self.__class__.__dict__.items()
 
