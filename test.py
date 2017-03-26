@@ -178,7 +178,7 @@ class Tunnelgroups(Section):
 
     tunnelgroup = Tunnelgroup()
 
-class NetworkConfigration(Configuration):
+class NetworkConfigration(Schema):
     ca = CAs(displayName='CA')
     identity = Identities()
     common = CommonConfigs()

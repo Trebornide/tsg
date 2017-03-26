@@ -1,6 +1,4 @@
 from tsg import *
-from test import NetworkConfigration
-
 
 class SubConf(Section):
     o1 = OneOf([
@@ -20,7 +18,7 @@ class SubConf2(Section):
     ])
 
 
-class Conf(Configuration):
+class Conf(Schema):
     myAtom = T_ATOM(title='MyTitle', format='T_ATOM', layoutHint=['lowercase', ('vertical', 7), 88])
     sub = OneOf([
         T_DOMAIN_NAME(),
@@ -28,7 +26,6 @@ class Conf(Configuration):
         SubConf2(title = 'Kalle', tralala = 'overridden')
     ], description='Why choose?')
 
-#conf = NetworkConfigration()
 conf = Conf()
 
 schema = conf.getSchema()
@@ -37,7 +34,7 @@ print (schema)
 spec = conf.getSpec()
 print (spec)
 
-class Conf1(Configuration):
+class Conf1(Schema):
     myInt  = T_DECIMAL(title='My number', minimum=3, maximum=88)
     myString = T_TEXT(title='My string', default='A default')
 
@@ -45,7 +42,7 @@ conf1 = Conf1()
 schema = conf1.getSchema()
 print(schema)
 
-class Conf2(Configuration):
+class Conf2(Schema):
     value = OneOf([
         T_DECIMAL(title='My number', minimum=3, maximum=88),
         T_TEXT(title='My string', default='A default'),
