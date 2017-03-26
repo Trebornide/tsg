@@ -1,12 +1,15 @@
 from tsg import *
 
+''' Base class for sections and symbols in a schema.
+
+'''
 class Base():
     counter = 0;
 
-
-    def __init__(self, *args, displayName=None,**kwargs):
-        self.displayName = displayName
+    def __init__(self, *args, **kwargs):
         self.argument_options = kwargs
+
+        # The Tutus type is the same as the class name.
         self.tType = self.__class__.__name__
 
         # id_no is used to maintain the order objects are created in.
