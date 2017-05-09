@@ -19,7 +19,7 @@ class Base():
     @classmethod
     def makeArrayFromKeyValue(cls, key, value):
         specLine = ''
-        specLine += 'array(' + key + ', '
+        specLine += 'array(' + '\'' + key + '\', '
         if isinstance(value, str):
             specLine += '\'' + value + '\''
         elif isinstance(value, list):
@@ -36,6 +36,7 @@ class Base():
         for value in a_list:
             if isinstance(value, str):
                 specLine += '\'' + value + '\''
+            elif isinstance(value, bool):
                 # JSON boolean uses 'true/false' not 'True/False' as in Python
                 if value:
                     specLine += 'true'

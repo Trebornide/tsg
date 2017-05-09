@@ -13,8 +13,10 @@ class Symbol(Base):
             specLine += '\'' + p + '\''
             specLine += ', '
 
-        specLine += self.tType + ', '
+        # E.g. S_VALUE
         specLine += S_Type.tostring(self.sType) + ', '
+        # E.g. T_TEXT
+        specLine += self.tType + ', '
 
         if self.argument_options != None:
             for key, value in self.argument_options.items():

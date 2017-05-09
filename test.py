@@ -17,22 +17,32 @@ time_zones = ['Africa/Casablanca', 'Africa/Dakar', 'Africa/Johannesburg', 'Afric
               'Europe/Kiev', 'Europe/Lisbon', 'Europe/London', 'Europe/Madrid', 'Europe/Paris', 'Europe/Rome',
               'Europe/Stockholm', 'Pacific/Apia', 'Pacific/Auckland', 'Pacific/Honolulu', 'Pacific/Nauru',
               'Pacific/Niue', 'Pacific/Port_Moresby']
+
+farist4_models = ['KryApp 9411 - M100',
+                  'KryApp 9411 - C200',
+                  'KryApp 9411 - R200',
+                  'KryApp 9411 - R210',
+                  'KryApp 9411 - H200',
+                  'KryApp 9411 - H210',
+                  'KryApp 9411 - H300'
+                  ]
+
 class CAs(Section):
     '''
     CA used by device.
     '''
     class CA(NSection):
-        name = T_ATOM()
-        cn   = T_CN(title='CA Common Name')
-        location = T_ATOM(S_CHOICE , choices=['Config', 'File', 'Card'] )
-        pem  = T_PEM(title='PEM file')
+        name = T_ATOM(display='Name')
+        cn   = T_CN(display='CA Common Name')
+        location = T_ATOM(S_CHOICE , choices=['Config', 'File', 'Card'])
+        pem  = T_PEM(display='PEM file', conditions=['location=Config'])
         crl = T_URL(optional=True)
 
     ca = CA()
 
 class Identities(Section):
     '''
-    Administrative identities to manage the devices
+    Administrative identities to manage the devices 
     '''
     class Identity(NSection):
         name  = T_ATOM(title='Admin group name')
@@ -46,10 +56,9 @@ class CommonConfigs(Section):
     '''
     CommonConfigs used by device.
     '''
-
     class CommonConfig(NSection):
         class CAdmin(Section):
-            enable    = T_BOOLEAN()
+            Enable    = T_BOOLEAN()
             port      = T_PORT(default=443)
             administrators = T_SECTION(S_CHOICE, choices='sections', sections=[':identity:identity'])
             operators = T_SECTION(S_CHOICE, choices='sections', sections=[':identity:identity'])
@@ -83,15 +92,15 @@ class CommonConfigs(Section):
             server = Server(max=3)
 
         name    = T_ATOM()
-        cn      = T_CN(displayName='CA Common Name')
+        cn      = T_CN(display='CA Common Name')
         pem     = T_PEM()
-        cadmin  = CAdmin(displayNamez='CAdmin client settings')
+        cadmin  = CAdmin(displayz='CAdmin client settings')
         cert    = Certificates()
         syslog  = Syslog()
         general = General()
         ntp     = NTP()
 
-    common = CommonConfig()
+    config = CommonConfig()
 
 
 class Networks(NSection):
@@ -130,6 +139,8 @@ class Devices(Section):
     '''
     Färist VPN-devices
     '''
+    class Options():
+        display='VPN devices'
 
     class CAdminClientSettings:
         address = T_IP_REDUCED(S_LIST, max=2)
@@ -140,13 +151,11 @@ class Devices(Section):
     class Device(NSection):
         name = T_ATOM()
         enable = T_BOOLEAN()
-        deviceType = T_TEXT(S_CHOICE, choices=['KryApp 9411 - M100', 'KryApp 9411 - C200', 'KryApp 9411 - R200',
-                                               'KryApp 9411 - R210', 'KryApp 9411 - H200', 'KryApp 9411 - H210',
-                                               'KryApp 9411 - H300'])
+        deviceType = T_TEXT(S_CHOICE, choices=farist4_models)
         version = T_TEXT(S_CHOICE, choices=['4.0.5', '4.1', '4.2'], default='4.1')
         hostname = T_DOMAIN_NAME(optional=True)
         failover = T_BOOLEAN(default=False)
-        common = T_SECTION(S_CHOICE, choices='section', section=[':common:config'] )
+        common = T_SECTION(S_CHOICE, choices='sections', sections=[':common:config'] )
         mgmt1 = RoutedInterface(enableIf=('failover', '==', True))
         mgmt2 = RoutedInterface()
         portpair = PortPairs()
@@ -160,8 +169,8 @@ class Tunnelgroups(Section):
     class Tunnelgroup(NSection):
         class Tunnel(Section):
             class TunnelEnd(Section):
-                device = T_SECTION(S_CHOICE, choices='section', section=[':device:device'], default=None )
-                cnpattern = T_CN_PATTERN()
+                device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'])
+                cnpattern = T_CN_PATTERN(conditions=['portpair!=None'])
                 portpair = T_ATOM()
 
             enable = T_BOOLEAN()
@@ -172,14 +181,14 @@ class Tunnelgroups(Section):
         enable = T_BOOLEAN(tooltip='Kalle')
         name = T_TEXT()
         type = T_TEXT(S_CHOICE, choices=['Routed', 'Bridged', 'Link'])
-        softlimit = T_DECIMAL()
-        hardlimit = T_DECIMAL()
+        softlimit = T_DECIMAL(optional = True)
+        hardlimit = T_DECIMAL(optional = True)
         tunnel = Tunnel()
 
     tunnelgroup = Tunnelgroup()
 
 class NetworkConfigration(Schema):
-    ca = CAs(displayName='CA')
+    ca = CAs(display='CA')
     identity = Identities()
     common = CommonConfigs()
     device = Devices()
@@ -188,4 +197,9 @@ class NetworkConfigration(Schema):
 conf = NetworkConfigration()
 
 spec = conf.getSpec()
+print
 print(spec)
+
+file = open("farist-vpn-net-3.0.spec", "w")
+file.write(spec)
+file.close()
