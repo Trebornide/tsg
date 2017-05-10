@@ -27,6 +27,9 @@ farist4_models = ['KryApp 9411 - M100',
                   'KryApp 9411 - H300'
                   ]
 
+portpair = ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4']
+portpair_extended = ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', 'MacSecAll']
+
 class CAs(Section):
     '''
     CA used by device.
@@ -74,6 +77,17 @@ class CommonConfigs(Section):
             AllowExpiredCert = T_BOOLEAN(default=False)
 
         class Syslog(Section):
+            class Remote(NSection):
+                Enable = T_BOOLEAN()
+                Host = T_DOMAIN_NAME()
+                Protocol = T_ATOM(S_CHOICE, choices=['TCP', 'UDP'], default='TCP')
+                Level = T_ATOM(S_CHOICE, choices=['Debug', 'Info', 'Warning', 'Error'], default='Info')
+
+            Storage = T_ATOM(S_CHOICE, choices=['Transient', 'Permanent'], default='Transient')
+            History = T_DECIMAL(min=1, max=365, default=90)
+            Remote = Remote(max=5)
+
+        class SyslogOld:
             Enable = T_BOOLEAN(default=False)
             Server = T_IP_REDUCED(S_LIST, max=5)
 
@@ -101,6 +115,7 @@ class CommonConfigs(Section):
         Name    = T_ATOM()
         cadmin  = CAdmin(display='CAdmin client settings')
         cert    = Certificates(display='CA certificates')
+        #syslog  = SyslogOld()
         syslog  = Syslog()
         general = General()
         ntp     = NTP()
@@ -109,16 +124,16 @@ class CommonConfigs(Section):
 
 
 class CAdminClientSettings(Section):
-    Address = T_IP_REDUCED(S_LIST, max=2)
-    Port = T_PORT(default=443)
     CN = T_CN()
+    Address = T_IP_REDUCED(S_LIST, max=2)
     PollInterval = T_DECIMAL(default=10)
+    Port = T_PORT(default=443)
 
 class Networks(NSection):
     Enable  = T_BOOLEAN(default=True)
     Name    = T_TEXT(optional=True)
-    Address = T_IP(mask=True)
-    Gateway = T_IP(optional=False)
+    Address = T_IP_ADDRESS(mask=True)
+    Gateway = T_IP_ADDRESS(optional=False)
 
 class DHCP(Section):
     Enable        = T_BOOLEAN(default=False)
@@ -128,13 +143,13 @@ class DHCP(Section):
 class ManagementInterface(Section):
     Enable   = T_BOOLEAN(default=True)
     Name     = T_TEXT(optional=True)
-    Address  = T_IP(mask=True)
+    Address  = T_IP_ADDRESS(mask=True)
     Networks = Networks()
     DHCP = DHCP(optional=True)
     MTU      = T_DECIMAL(optional=True)
 
 class RoutedInterface(Section):
-    Address  = T_IP(mask=True)
+    Address  = T_IP_ADDRESS(mask=True)
     MTU      = T_DECIMAL(optional=True)
     Networks = Networks()
     DHCP     = DHCP(optional=True)
@@ -142,14 +157,25 @@ class RoutedInterface(Section):
 class LinkInterface(Section):
     MTU      = T_DECIMAL(optional=True)
 
+class Filters(Section):
+    class Filter(NSection):
+        # ToDo: OneOf filter type in the future
+        Enable = T_BOOLEAN()
+        FilterType = T_TEXT(S_CHOICE, choices=['NTP'], default='NTP')
+        ClearNTP = T_IP_REDUCED()
+        CryptoNTP = T_IP_REDUCED()
+    Filter = Filter()
+
 class RoutedPortPairs(NSection):
     class RoutedPortPair(Section):
         '''Crypto function'''
         Enable = T_BOOLEAN()
         Name = T_TEXT()
-        PortPair = T_TEXT()
+        PortPair = T_TEXT(S_CHOICE, choices=portpair)
         clear = RoutedInterface()
         crypto = RoutedInterface()
+        filter = Filters()
+
     portpair = RoutedPortPair()
 
 class BridgedPortPairs(NSection):
@@ -157,7 +183,7 @@ class BridgedPortPairs(NSection):
         '''Crypto function'''
         Enable = T_BOOLEAN()
         Name = T_TEXT()
-        PortPair = T_TEXT()
+        PortPair = T_TEXT(S_CHOICE, choices=portpair)
         clear = LinkInterface()
         crypto = RoutedInterface()
     portpair = BridgedPortPair()
@@ -167,7 +193,7 @@ class LinkedPortPairs(NSection):
         '''Crypto function'''
         Enable = T_BOOLEAN()
         Name = T_TEXT()
-        PortPair = T_TEXT()
+        PortPair = T_TEXT(S_CHOICE, choices=portpair)
         MTU      = T_DECIMAL(optional=True)
     portpair = LinkedPortPair()
 
@@ -191,9 +217,7 @@ class Devices(Section):
         Failover = T_BOOLEAN(default=False)
         common = T_SECTION(S_CHOICE, choices='sections', sections=[':common:config'] )
         cadmin = CAdminClientSettings()
-        interface = Interface(conditions=['Failover=false'])
-        #mgmt1 = RoutedInterface()
-        #mgmt2 = RoutedInterface()
+        interface = Interface()
         routed = RoutedPortPairs()
         bridged = BridgedPortPairs()
         link = LinkedPortPairs()
@@ -207,20 +231,32 @@ class Tunnelgroups(Section):
     class Tunnelgroup(NSection):
         class Tunnel(Section):
             class TunnelEnd(Section):
+                # DeviceOPattern = T_TEXT(S_CHOICE, choices=['Device', 'Pattern'], default='Device')
+                # device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], conditions=['DeviceOPattern=Device'])
+                # CNPattern = T_CN_PATTERN(conditions=['DeviceOPattern=Pattern'])
                 device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'])
-                CNPattern = T_CN_PATTERN(conditions=['PortPair!=None'])
-                PortPair = T_ATOM()
+                PortPair = T_ATOM(S_CHOICE, choices=portpair_extended)
+                CNPattern = T_CN_PATTERN()
+                AdminTunnel = T_BOOLEAN()
 
             Enable = T_BOOLEAN()
             Name = T_TEXT()
             A = TunnelEnd()
             B = TunnelEnd()
 
-        Enable = T_BOOLEAN(tooltip='Kalle')
+        class Multicasts(Section):
+            class Grouprange(NSection):
+                # Todo: T_MULTICAST_GROUP for From and To
+                FromIP = T_IP_ADDRESS()
+                ToIP = T_IP_ADDRESS()
+            grouprange = Grouprange()
+
+        Enable = T_BOOLEAN()
         Name = T_TEXT()
         Type = T_TEXT(S_CHOICE, choices=['Routed', 'Bridged', 'Link'])
         SoftLimit = T_DECIMAL(optional = True)
         HardLimit = T_DECIMAL(optional = True)
+        #multicast = Multicasts()
         tunnel = Tunnel()
 
     tunnelgroup = Tunnelgroup()
