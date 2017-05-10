@@ -12,7 +12,7 @@ class Schema(Section):
         return schema
 
 
-    def getSpec(self, path = []):
+    def getSpec(self, major, minor, path = []):
         spec = ''
 
         # Comment spec file using class doc
@@ -21,7 +21,7 @@ class Schema(Section):
                 spec += '# ' + docLine.strip() + '\n'
 
         spec += '<?\n'
-        spec += 'version(\'farist-vpn-net\', 3, 0);\n\n'
+        spec += 'version(\'farist-vpn-net\',' + str(major) + ', ' + str(minor) + ');\n\n'
 
         items = self.__class__.__dict__.items()
 
