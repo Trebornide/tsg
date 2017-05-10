@@ -25,8 +25,7 @@ class T_DECIMAL(Symbol):
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 
-
-class T_IP(Symbol):
+class T_IP_ADDRESS(Symbol):
     def __init__(self, sType=S_VALUE, *args, **kwargs):
         self.type = 'string'
         self.sType = sType
@@ -46,12 +45,6 @@ class T_PORT(Symbol):
 
 class T_PEM(Symbol):
     def __init__(self, sType=S_MULTILINE, *args, **kwargs):
-        self.type = 'string'
-        self.sType = sType
-        super().__init__(self, *args, **kwargs)
-
-class T_CN(Symbol):
-    def __init__(self, sType=S_VALUE, *args, **kwargs):
         self.type = 'string'
         self.sType = sType
         super().__init__(self, *args, **kwargs)
@@ -89,12 +82,6 @@ class T_EMAIL_PATTERN(Symbol):
 class T_SECTION(Symbol):
     def __init__(self, sType=S_VALUE, *args, **kwargs):
         self.type = 'object'
-        self.sType = sType
-        super().__init__(self, *args, **kwargs)
-
-class T_IP(Symbol):
-    def __init__(self,  sType=S_VALUE, *args, **kwargs):
-        self.type = 'string'
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 
