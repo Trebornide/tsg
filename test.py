@@ -106,8 +106,8 @@ class CommonConfigs(Section):
 class Networks(NSection):
     enable  = T_BOOLEAN()
     name    = T_TEXT()
-    address = T_IP(mask=True)
-    gateway = T_IP()
+    address = T_IP_ADDRESS(mask=True)
+    gateway = T_IP_ADDRESS()
 
 class DHCP(Section):
     enable        = T_BOOLEAN()
@@ -117,7 +117,7 @@ class DHCP(Section):
 class RoutedInterface(Section):
     enable   = T_BOOLEAN()
     name     = T_TEXT()
-    address  = T_IP(mask=True)
+    address  = T_IP_ADDRESS(mask=True)
     networks = Networks()
     dhcp = DHCP()
 

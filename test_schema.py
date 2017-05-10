@@ -2,7 +2,7 @@ from tsg import *
 
 class SubConf(Section):
     o1 = OneOf([
-        T_IP(),
+        T_IP_ADDRESS(),
         T_DECIMAL()
     ])
 
@@ -13,7 +13,7 @@ class SubConf2(Section):
         tralala= 'hoho'
 
     o2 = OneOf([
-        T_IP(),
+        T_IP_ADDRESS(),
         T_DECIMAL()
     ])
 
