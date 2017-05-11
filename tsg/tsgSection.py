@@ -48,7 +48,7 @@ class Section(Base):
         # Comment spec file using class doc
         if self.__doc__ != None:
             for docLine in self.__doc__.split('\n'):
-                spec += '# ' + docLine.strip() + '\n'
+                spec += '// ' + docLine.strip() + '\n'
 
         spec += self.getOwnSpec(path)
 

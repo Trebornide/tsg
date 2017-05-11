@@ -22,6 +22,12 @@ class Base():
         specLine += 'array(' + '\'' + key + '\', '
         if isinstance(value, str):
             specLine += '\'' + value + '\''
+        elif isinstance(value, bool):
+            # JSON boolean uses 'true/false' not 'True/False' as in Python
+            if value:
+                specLine += 'true'
+            else:
+                specLine += 'false'
         elif isinstance(value, list):
             specLine += Base.makeArrayFromList(value)
         else:

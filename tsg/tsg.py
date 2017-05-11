@@ -4,14 +4,14 @@ import types
 
 from operator import itemgetter, attrgetter, methodcaller
 
-class S_Type(EnumBase): S_VALUE, S_LIST, S_CHOICE, S_CHOICE_MULTI, S_MULTILINE = range(5)
+class S_Type(EnumBase): S_VALUE, S_LIST, S_CHOICE, S_CHOICE_MULTI, S_MULTLINE = range(5)
 
 # Make constants just to make schema look nice
 S_VALUE = S_Type.S_VALUE
 S_LIST= S_Type.S_LIST
 S_CHOICE = S_Type.S_CHOICE
 S_CHOICE_MULTI = S_Type.S_CHOICE_MULTI
-S_MULTILINE = S_Type.S_MULTILINE
+S_MULTLINE = S_Type.S_MULTLINE
 
 def makeSchemaLine(indent, line, line_end=',\n'):
     schema_line = ''

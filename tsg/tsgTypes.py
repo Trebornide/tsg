@@ -43,8 +43,14 @@ class T_PORT(Symbol):
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 
+class T_ETHERNET_ADDRESS(Symbol):
+    def __init__(self, sType=S_VALUE, *args, **kwargs):
+        self.type = 'string'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)
+
 class T_PEM(Symbol):
-    def __init__(self, sType=S_MULTILINE, *args, **kwargs):
+    def __init__(self, sType=S_MULTLINE, *args, **kwargs):
         self.type = 'string'
         self.sType = sType
         super().__init__(self, *args, **kwargs)
