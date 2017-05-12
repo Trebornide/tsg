@@ -1,4 +1,5 @@
 from tsg import *
+import datetime
 
 class Schema(Section):
     def getSchema(self, indent=0):
@@ -21,7 +22,11 @@ class Schema(Section):
                 spec += '// ' + docLine.strip() + '\n'
 
         spec += '<?\n'
-        spec += 'version(\'farist-vpn-net\',' + str(major) + ', ' + str(minor) + ');\n\n'
+        spec += 'version(\'farist-vpn-net\', ' + str(major) + ', ' + str(minor) + ');\n\n'
+
+        time_list = []
+        time_list.append(datetime.datetime.today())
+        spec += '//  Generated at: ' + str(time_list[0]) + '\n\n'
 
         items = self.__class__.__dict__.items()
 
