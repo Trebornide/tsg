@@ -28,19 +28,19 @@ farist4_models = ['KryApp 9411 - M100',
                   ]
 
 portpair = ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4']
-portpair_extended = ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', 'MacSecAll']
+portpair_extended = ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', 'Admin', 'MacSecAll']
 
 class CAs(Section):
     '''
     CA used by device.
     '''
     class CA(NSection):
-        CN   = T_CN(display='CA Common Name')
+        CN   = T_CN_PATTERN()
         Location = T_ATOM(S_CHOICE , choices=['Config', 'File', 'Card'])
         PEM  = T_PEM(display='PEM file', conditions=['Location==Config'], optional=True)
         CRL = T_URL(optional=True)
 
-    ca = CA()
+    ca = CA(max=32, linkdisplay=['CA Common Name'])
 
 class Identities(Section):
     '''
@@ -50,7 +50,7 @@ class Identities(Section):
         display='Administrators'
 
     class Identity(NSection):
-        Name  = T_ATOM(title='Admin group name', optional=True)
+        Name  = T_TEXT(title='Admin group name', optional=True)
         CN    = T_CN_PATTERN(S_LIST, max=32, optional=True)
         UID   = T_UID_PATTERN(S_LIST, max=32, optional=True)
         Email = T_EMAIL_PATTERN(S_LIST, max=32, optional=True)
@@ -68,8 +68,8 @@ class CommonConfigs(Section):
         class CAdmin(Section):
             Enable        = T_BOOLEAN(default=True)
             Port          = T_PORT(default=443, optional=True)
-            Administrator = T_SECTION(S_CHOICE, choices='sections', sections=[':identity:identity'])
-            operator      = T_SECTION(S_CHOICE, choices='sections', sections=[':identity:identity'], optional=True)
+            Administrator = T_SECTION(S_CHOICE, choices='sections', sections=[':identity:identity'], optional=True)
+            Operator      = T_SECTION(S_CHOICE, choices='sections', sections=[':identity:identity'], optional=True)
 
         class Certificates(Section):
             AllowedCA = T_SECTION(S_CHOICE_MULTI, max=32, choices='section', section=[':certificate:ca'])
@@ -124,14 +124,14 @@ class CommonConfigs(Section):
             '''
             SNMP
             '''
-            Enable = T_BOOLEAN()
+            Enable = T_BOOLEAN(default=False)
             TrapHost = T_IP_REDUCED(S_LIST, max=5)
 
         class AutoUpdate(Section):
             '''
             AutoUpdate
             '''
-            Enable = T_BOOLEAN()
+            Enable = T_BOOLEAN(default=False)
             BaseURL = T_URL()
             Timeout = T_DECIMAL(optional=True)
 
@@ -139,14 +139,14 @@ class CommonConfigs(Section):
             '''
             CRLUpdate
             '''
-            Enable = T_BOOLEAN()
+            Enable = T_BOOLEAN(default=False)
             Timeout = T_DECIMAL(optional=True)
 
         class Resolver(Section):
             '''
             Resolver
             '''
-            Enable = T_BOOLEAN()
+            Enable = T_BOOLEAN(default=False)
             Address = T_IP_REDUCED(S_LIST, max=5)
 
         class Tunnel(Section):
@@ -154,11 +154,11 @@ class CommonConfigs(Section):
             Tunnel
             '''
             Port = T_PORT(default=443, optional = True)
-            LogDroppedPackets = T_BOOLEAN(optional=True, default=False)
+            LogDroppedBroadcast = T_BOOLEAN(optional=True, default=False)
 
 
-        Name    = T_ATOM(optional=True)
-        cadmin  = CAdmin(display='CAdmin client settings')
+        Name    = T_TEXT(optional=True)
+        cadmin  = CAdmin(display='CAdmin server settings')
         cert    = Certificates(display='CA certificates')
         #syslog  = SyslogOld()
         syslog  = Syslog(display='Syslog')
@@ -189,18 +189,23 @@ class CAdminClientSettings(Section):
     Port = T_PORT(default=443, optional=True)
 
 class Networks(NSection):
-    Enable  = T_BOOLEAN(default=True)
+    Enable  = T_BOOLEAN(default=False)
     Name    = T_TEXT(optional=True)
     Address = T_IP_ADDRESS(mask=True)
-    Gateway = T_IP_ADDRESS(optional=True)
+    Gateway = T_IP_REDUCED()
 
 class DHCP(Section):
-    Enable        = T_BOOLEAN(default=True)
+    Enable        = T_BOOLEAN(default=False)
     DNS           = T_BOOLEAN(default=False)
     DefaultRouter = T_BOOLEAN(default=False)
 
 class RoutedInterface(Section):
     Address  = T_IP_ADDRESS(mask=True)
+    MTU      = T_DECIMAL(optional=True)
+    Network  = Networks()
+
+class RoutedInterfaceDHCP(Section):
+    Address  = T_IP_ADDRESS(mask=True, optional=True)
     MTU      = T_DECIMAL(optional=True)
     Network  = Networks()
     DHCP     = DHCP(optional=True)
@@ -222,6 +227,19 @@ class Filters(Section):
         CryptoNTP = T_IP_REDUCED()
     Filter = Filter()
 
+
+class Multicasts(Section):
+    '''
+    Multicast
+    '''
+
+    class Grouprange(NSection):
+        FromIP = T_MULTICAST_GROUP()
+        ToIP = T_MULTICAST_GROUP()
+
+    grouprange = Grouprange()
+
+
 class RoutedPortPairs(Section):
     '''
     Routed Crypto function
@@ -231,8 +249,11 @@ class RoutedPortPairs(Section):
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
         PortPair = T_TEXT(S_CHOICE, choices=portpair)
+        TunnelForwarding = T_BOOLEAN(default=False)
+        FailoverPair = T_PORTPAIR(optional=True)
         clear = RoutedInterface(display='Clear text')
         crypto = RoutedInterface(display='Crypto text')
+        # multicast = Multicasts()
 
     portpair = RoutedPortPair()
 
@@ -244,6 +265,7 @@ class BridgedPortPairs(Section):
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
         PortPair = T_TEXT(S_CHOICE, choices=portpair)
+        FailoverPair = T_PORTPAIR(optional=True)
         clear = LinkInterface(display='Clear text')
         crypto = RoutedInterface(display='Crypto text')
     portpair = BridgedPortPair()
@@ -256,6 +278,7 @@ class LinkedPortPairs(Section):
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
         PortPair = T_TEXT(S_CHOICE, choices=portpair)
+        FailoverPair = T_PORTPAIR(optional=True)
         MTU      = T_DECIMAL(optional=True)
     portpair = LinkedPortPair()
 
@@ -271,8 +294,8 @@ class Interface(Section):
         Name = T_TEXT(optional=True)
         Address = T_IP_ADDRESS(mask=True, optional=True)
         Network  = Networks()
+        MTU = T_DECIMAL(optional=True, default=1500)
         DHCP = DHCP(optional=True)
-        MTU = T_DECIMAL(optional=True)
 
     class FailoverManagementInterface(Section):
         '''
@@ -289,6 +312,8 @@ class Interface(Section):
         class FailoverPortPairSettings(Section):
             GraceTime = T_DECIMAL()
 
+        Enable = T_BOOLEAN(default=False)
+        MTU = T_DECIMAL(default=1500)
         primary = Interface(display='Device 1 management interface')
         secondary = Interface(display='Device 2 management interface')
         network = Networks()
@@ -307,13 +332,13 @@ class Devices(Section):
         display='VPN devices'
 
     class Device(NSection):
-        Name = T_ATOM(optional=True)
-        Enable = T_BOOLEAN()
+        Name = T_TEXT(optional=True)
+        Enable = T_BOOLEAN(default=False)
         DeviceType = T_TEXT(S_CHOICE, choices=farist4_models)
-        Version = T_TEXT(S_CHOICE, choices=['4.0.5', '4.1', '4.2'], default='4.1')
+        Version = T_ATOM(S_CHOICE, choices=['4.0.5', '4.1', '4.2'], default='4.1')
         Hostname = T_DOMAIN_NAME(optional=True)
-        Failover = T_BOOLEAN(default=False)
-        common = T_SECTION(S_CHOICE, choices='sections', sections=[':common:config'] )
+        # Failover = T_BOOLEAN(default=False)
+        CommonConfig = T_SECTION(S_CHOICE, choices='sections', sections=[':common:config'] )
 
         credentials = Credentials(display='Credentials')
         cadmin = CAdminClientSettings(display='CAdmin client Settings')
@@ -330,7 +355,7 @@ class Tunnelgroups(Section):
     Group of tunnels with common characteristics
     '''
     class Tunnelgroup(NSection):
-        class Tunnel(NSection):
+        class Tunnels(NSection):
             '''
             Tunnels
             '''
@@ -341,30 +366,21 @@ class Tunnelgroups(Section):
                 Device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], optional=True)
                 CNPattern = T_CN_PATTERN(conditions=['Device==null'], optional=True)
                 PortPair = T_ATOM(S_CHOICE, choices=portpair_extended)
-                AdminTunnel = T_BOOLEAN(conditions=['PortPair=="1.1"', '../../Type=="Routed"'], optional=True)
+                # AdminTunnel = T_BOOLEAN(conditions=['PortPair=="1.1"', '../../Type=="Routed"'], optional=True)
 
             Enable = T_BOOLEAN()
             Name = T_TEXT(optional=True)
             A = TunnelEnd()
             B = TunnelEnd()
 
-        class Multicasts(Section):
-            '''
-            Multicast
-            '''
-            class Grouprange(NSection):
-                # Todo: T_MULTICAST_GROUP for From and To
-                FromIP = T_IP_ADDRESS()
-                ToIP = T_IP_ADDRESS()
-            grouprange = Grouprange()
-
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
         Type = T_TEXT(S_CHOICE, choices=['Routed', 'Bridged', 'Link'])
         SoftLimit = T_DECIMAL(optional = True)
         HardLimit = T_DECIMAL(optional = True)
-        multicast = Multicasts(optional=True)
-        tunnel = Tunnel()
+        MTU = T_DECIMAL(optional=True)
+        # multicast = Multicasts(optional=True)
+        tunnel = Tunnels()
 
     group = Tunnelgroup()
 
