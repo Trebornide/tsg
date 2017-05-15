@@ -22,7 +22,8 @@ class Section(Base):
         return options
 
     def getOwnSpec(self, path=[]):
-        specLine = 'section('
+        specLine = '\n'
+        specLine += 'section('
         for p in path:
             specLine += '\'' + p + '\''
             specLine += ', '
@@ -47,6 +48,7 @@ class Section(Base):
 
         # Comment spec file using class doc
         if self.__doc__ != None:
+            spec+='\n'
             for docLine in self.__doc__.split('\n'):
                 spec += '// ' + docLine.strip() + '\n'
 
@@ -72,6 +74,9 @@ class Section(Base):
             nextLevelPath = deepcopy(path)
             nextLevelPath.append(k1)
             spec += v1.getSpec(nextLevelPath)
+
+        # Make spec have space after each section end.
+        # spec += '\n'
         return spec
 
     def getSchema(self, indent=0):
