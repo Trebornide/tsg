@@ -37,9 +37,21 @@ class T_IP_REDUCED(Symbol):
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 
+class T_MULTICAST_GROUP(Symbol):
+    def __init__(self, sType=S_VALUE, *args, **kwargs):
+        self.type = 'string'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)
+
 class T_PORT(Symbol):
     def __init__(self, sType=S_VALUE, *args, **kwargs):
         self.type = 'number'
+        self.sType = sType
+        super().__init__(self, *args, **kwargs)
+
+class T_PORTPAIR(Symbol):
+    def __init__(self, sType=S_VALUE, *args, **kwargs):
+        self.type = 'string'
         self.sType = sType
         super().__init__(self, *args, **kwargs)
 
