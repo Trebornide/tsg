@@ -113,7 +113,7 @@ class CommonConfigs(Section):
 
             class Server(NSection):
                 Name = T_TEXT(optional=True)
-                Server = T_IP_REDUCED()
+                Server = T_DOMAIN_NAME()
                 Key = T_SECTION(S_CHOICE, choices='section', section=[':common:config:ntp:key'], optional=True)
 
             Enable = T_BOOLEAN(default=False)
@@ -125,7 +125,7 @@ class CommonConfigs(Section):
             SNMP
             '''
             Enable = T_BOOLEAN(default=False)
-            TrapHost = T_IP_REDUCED(S_LIST, max=5)
+            TrapHost = T_DOMAIN_NAME(S_LIST, max=5)
 
         class AutoUpdate(Section):
             '''
@@ -189,6 +189,9 @@ class CAdminClientSettings(Section):
     Port = T_PORT(default=443, optional=True)
 
 class Networks(NSection):
+    class Options:
+        max=1024
+
     Enable  = T_BOOLEAN(default=False)
     Name    = T_TEXT(optional=True)
     Address = T_IP_ADDRESS(mask=True)
@@ -221,8 +224,8 @@ class Filters(Section):
         # ToDo: OneOf filter type in the future
         Enable = T_BOOLEAN(default=True)
         Name = T_TEXT(optional=True)
-        FilterType = T_TEXT(S_CHOICE, choices=['NTP'], default='NTP')
-        PortPair = T_TEXT(S_CHOICE, choices=portpair)
+        FilterType = T_ATOM(S_CHOICE, choices=['NTP'], default='NTP')
+        PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         ClearNTP = T_IP_REDUCED()
         CryptoNTP = T_IP_REDUCED()
     Filter = Filter()
@@ -248,7 +251,7 @@ class RoutedPortPairs(Section):
     class RoutedPortPair(NSection):
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
-        PortPair = T_TEXT(S_CHOICE, choices=portpair)
+        PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         TunnelForwarding = T_BOOLEAN(default=False)
         FailoverPair = T_PORTPAIR(optional=True)
         clear = RoutedInterface(display='Clear text')
@@ -264,7 +267,7 @@ class BridgedPortPairs(Section):
     class BridgedPortPair(NSection):
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
-        PortPair = T_TEXT(S_CHOICE, choices=portpair)
+        PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         FailoverPair = T_PORTPAIR(optional=True)
         clear = LinkInterface(display='Clear text')
         crypto = RoutedInterface(display='Crypto text')
@@ -277,7 +280,7 @@ class LinkedPortPairs(Section):
     class LinkedPortPair(NSection):
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
-        PortPair = T_TEXT(S_CHOICE, choices=portpair)
+        PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         FailoverPair = T_PORTPAIR(optional=True)
         MTU      = T_DECIMAL(optional=True)
     portpair = LinkedPortPair()
@@ -302,7 +305,7 @@ class Interface(Section):
         Failover
         '''
         class Interface(Section):
-            Address = T_IP_REDUCED()
+            Address = T_IP_REDUCED(mask=True)
             MAC = T_ETHERNET_ADDRESS()
 
         class VirtualServer(Section):
@@ -334,8 +337,8 @@ class Devices(Section):
     class Device(NSection):
         Name = T_TEXT(optional=True)
         Enable = T_BOOLEAN(default=False)
-        DeviceType = T_TEXT(S_CHOICE, choices=farist4_models)
-        Version = T_ATOM(S_CHOICE, choices=['4.0.5', '4.1', '4.2'], default='4.1')
+        DeviceType = T_ATOM(S_CHOICE, choices=farist4_models)
+        Version = T_ATOM(S_CHOICE, choices=['PGAI 4.0.5', 'PGAI 4.1', 'PGAI 4.2'], default='PGAI 4.1')
         Hostname = T_DOMAIN_NAME(optional=True)
         # Failover = T_BOOLEAN(default=False)
         CommonConfig = T_SECTION(S_CHOICE, choices='sections', sections=[':common:config'] )
@@ -375,7 +378,7 @@ class Tunnelgroups(Section):
 
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
-        Type = T_TEXT(S_CHOICE, choices=['Routed', 'Bridged', 'Link'])
+        Type = T_ATOM(S_CHOICE, choices=['Routed', 'Bridged', 'Link'])
         SoftLimit = T_DECIMAL(optional = True)
         HardLimit = T_DECIMAL(optional = True)
         MTU = T_DECIMAL(optional=True)
@@ -393,11 +396,11 @@ class NetworkConfigration(Schema):
 
 conf = NetworkConfigration()
 
-spec = conf.getSpec(2,0)
+spec = conf.getSpec(3,0)
 print
 print(spec)
 
-file = open("farist-vpn-net-2.x.spec", "w", newline='\n')
+file = open("farist-vpn-net-3.0.beta.spec", "w", newline='\n')
 file.write(spec)
 file.close()
 
