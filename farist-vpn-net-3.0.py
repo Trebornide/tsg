@@ -239,6 +239,7 @@ class Multicasts(Section):
     '''
 
     class Grouprange(NSection):
+        Enable = T_BOOLEAN(default=True)
         FromIP = T_MULTICAST_GROUP()
         ToIP = T_MULTICAST_GROUP()
 
@@ -251,7 +252,7 @@ class RoutedPortPairs(Section):
     '''
 
     class RoutedPortPair(NSection):
-        Enable = T_BOOLEAN()
+        Enable = T_BOOLEAN(default=True)
         Name = T_TEXT(optional=True)
         PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         TunnelForwarding = T_BOOLEAN(default=False)
@@ -260,7 +261,7 @@ class RoutedPortPairs(Section):
                                   conditions=['../../interface/failover/eEnable==true'],
                                   optional=True)
         clear = RoutedInterface(display='Clear text')
-        crypto = RoutedInterface(display='Crypto text')
+        crypto = RoutedInterfaceDHCP(display='Crypto text')
         # multicast = Multicasts()
 
     portpair = RoutedPortPair()
@@ -270,7 +271,7 @@ class BridgedPortPairs(Section):
     Bridged Crypto function
     '''
     class BridgedPortPair(NSection):
-        Enable = T_BOOLEAN()
+        Enable = T_BOOLEAN(default=True)
         Name = T_TEXT(optional=True)
         PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         FailoverPair = T_PORTPAIR(S_CHOICE,
@@ -278,7 +279,7 @@ class BridgedPortPairs(Section):
                                   conditions=['../../interface/failover/eEnable==true'],
                                   optional=True)
         clear = LinkInterface(display='Clear text')
-        crypto = RoutedInterface(display='Crypto text')
+        crypto = RoutedInterfaceDHCP(display='Crypto text')
     portpair = BridgedPortPair()
 
 class LinkedPortPairs(Section):
@@ -286,7 +287,7 @@ class LinkedPortPairs(Section):
     Link Crypto function
     '''
     class LinkedPortPair(NSection):
-        Enable = T_BOOLEAN()
+        Enable = T_BOOLEAN(default=True)
         Name = T_TEXT(optional=True)
         PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         FailoverPair = T_PORTPAIR(S_CHOICE,
@@ -370,34 +371,31 @@ class Tunnelgroups(Section):
     '''
     class Tunnelgroup(NSection):
 
-        class Tunnels(Section):
-            class Tunnel(NSection):
-                '''
-                Tunnels
-                '''
-                class TunnelEnd(Section):
-                    # DeviceOPattern = T_TEXT(S_CHOICE, choices=['Device', 'Pattern'], default='Device')
-                    # device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], conditions=['DeviceOPattern=Device'])
-                    # CNPattern = T_CN_PATTERN(conditions=['DeviceOPattern=Pattern'])
-                    Device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], optional=True)
-                    CNPattern = T_CN_PATTERN(conditions=['Device==null'], optional=True)
-                    PortPair = T_ATOM(S_CHOICE, choices=portpair_extended)
-                    # AdminTunnel = T_BOOLEAN(conditions=['PortPair=="1.1"', '../../Type=="Routed"'], optional=True)
+        class Tunnels(NSection):
+            '''
+            Tunnels
+            '''
+            class TunnelEnd(Section):
+                # DeviceOPattern = T_TEXT(S_CHOICE, choices=['Device', 'Pattern'], default='Device')
+                # device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], conditions=['DeviceOPattern=Device'])
+                # CNPattern = T_CN_PATTERN(conditions=['DeviceOPattern=Pattern'])
+                Device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], optional=True)
+                CNPattern = T_CN_PATTERN(conditions=['Device==null'], optional=True)
+                PortPair = T_ATOM(S_CHOICE, choices=portpair_extended)
+                # AdminTunnel = T_BOOLEAN(conditions=['PortPair=="1.1"', '../../Type=="Routed"'], optional=True)
 
-                Enable = T_BOOLEAN()
-                Name = T_TEXT(optional=True)
-                A = TunnelEnd()
-                B = TunnelEnd()
+            Enable = T_BOOLEAN(default=True)
+            Name = T_TEXT(optional=True)
+            A = TunnelEnd()
+            B = TunnelEnd()
 
-            tunnel = Tunnel()
-
-        Enable = T_BOOLEAN()
+        Enable = T_BOOLEAN(default=True)
         Name = T_TEXT(optional=True)
         Type = T_ATOM(S_CHOICE, choices=['Routed', 'Bridged', 'Link'])
         SoftLimit = T_DECIMAL(optional = True)
         HardLimit = T_DECIMAL(optional = True)
         MTU = T_DECIMAL(optional=True)
-        multicast = Multicasts(optional=True)
+        multicast = Multicasts(conditions=['../Type=="Routed"'], optional=True)
         tunnel = Tunnels()
 
     group = Tunnelgroup()
