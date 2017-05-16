@@ -358,23 +358,27 @@ class Tunnelgroups(Section):
     Group of tunnels with common characteristics
     '''
     class Tunnelgroup(NSection):
-        class Tunnels(NSection):
-            '''
-            Tunnels
-            '''
-            class TunnelEnd(Section):
-                # DeviceOPattern = T_TEXT(S_CHOICE, choices=['Device', 'Pattern'], default='Device')
-                # device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], conditions=['DeviceOPattern=Device'])
-                # CNPattern = T_CN_PATTERN(conditions=['DeviceOPattern=Pattern'])
-                Device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], optional=True)
-                CNPattern = T_CN_PATTERN(conditions=['Device==null'], optional=True)
-                PortPair = T_ATOM(S_CHOICE, choices=portpair_extended)
-                # AdminTunnel = T_BOOLEAN(conditions=['PortPair=="1.1"', '../../Type=="Routed"'], optional=True)
 
-            Enable = T_BOOLEAN()
-            Name = T_TEXT(optional=True)
-            A = TunnelEnd()
-            B = TunnelEnd()
+        class Tunnels(Section):
+            class Tunnel(NSection):
+                '''
+                Tunnels
+                '''
+                class TunnelEnd(Section):
+                    # DeviceOPattern = T_TEXT(S_CHOICE, choices=['Device', 'Pattern'], default='Device')
+                    # device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], conditions=['DeviceOPattern=Device'])
+                    # CNPattern = T_CN_PATTERN(conditions=['DeviceOPattern=Pattern'])
+                    Device = T_SECTION(S_CHOICE, choices='sections', sections=[':device:device'], optional=True)
+                    CNPattern = T_CN_PATTERN(conditions=['Device==null'], optional=True)
+                    PortPair = T_ATOM(S_CHOICE, choices=portpair_extended)
+                    # AdminTunnel = T_BOOLEAN(conditions=['PortPair=="1.1"', '../../Type=="Routed"'], optional=True)
+
+                Enable = T_BOOLEAN()
+                Name = T_TEXT(optional=True)
+                A = TunnelEnd()
+                B = TunnelEnd()
+
+            tunnel = Tunnel()
 
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
@@ -382,7 +386,7 @@ class Tunnelgroups(Section):
         SoftLimit = T_DECIMAL(optional = True)
         HardLimit = T_DECIMAL(optional = True)
         MTU = T_DECIMAL(optional=True)
-        # multicast = Multicasts(optional=True)
+        multicast = Multicasts(optional=True)
         tunnel = Tunnels()
 
     group = Tunnelgroup()
