@@ -184,7 +184,7 @@ class CAdminClientSettings(Section):
     Cadmin Client Settings
     '''
     CN = T_CN()
-    Address = T_IP_REDUCED(S_LIST, max=2, optional=True)
+    Address = T_DOMAIN_NAME(S_LIST, max=2, optional=True)
     PollInterval = T_DECIMAL(default=10, optional=True)
     Port = T_PORT(default=443, optional=True)
 
