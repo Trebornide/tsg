@@ -35,12 +35,14 @@ class CAs(Section):
     CA used by device.
     '''
     class CA(NSection):
+        Name = T_TEXT(optional=True)
         CN   = T_CN_PATTERN()
         Location = T_ATOM(S_CHOICE , choices=['Config', 'File', 'Card'])
         PEM  = T_PEM(display='PEM file', conditions=['Location==Config'], optional=True)
         CRL = T_URL(optional=True)
 
-    ca = CA(max=32, linkdisplay=['CA Common Name'])
+    # ca = CA(max=32, linkdisplay=['CN'])
+    ca = CA(max=32)
 
 class Identities(Section):
     '''
@@ -72,7 +74,7 @@ class CommonConfigs(Section):
             Operator      = T_SECTION(S_CHOICE, choices='sections', sections=[':identity:identity'], optional=True)
 
         class Certificates(Section):
-            AllowedCA = T_SECTION(S_CHOICE_MULTI, max=32, choices='section', section=[':certificate:ca'])
+            AllowedCA = T_SECTION(S_CHOICE_MULTI, max=32, choices='sections', sections=[':certificate:ca'])
             AllowExpiredCert = T_BOOLEAN(default=False)
 
         class Syslog(Section):
@@ -253,7 +255,10 @@ class RoutedPortPairs(Section):
         Name = T_TEXT(optional=True)
         PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         TunnelForwarding = T_BOOLEAN(default=False)
-        FailoverPair = T_PORTPAIR(optional=True)
+        FailoverPair = T_PORTPAIR(S_CHOICE,
+                                  choices=portpair,
+                                  conditions=['../../interface/failover/eEnable==true'],
+                                  optional=True)
         clear = RoutedInterface(display='Clear text')
         crypto = RoutedInterface(display='Crypto text')
         # multicast = Multicasts()
@@ -268,7 +273,10 @@ class BridgedPortPairs(Section):
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
         PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
-        FailoverPair = T_PORTPAIR(optional=True)
+        FailoverPair = T_PORTPAIR(S_CHOICE,
+                                  choices=portpair,
+                                  conditions=['../../interface/failover/eEnable==true'],
+                                  optional=True)
         clear = LinkInterface(display='Clear text')
         crypto = RoutedInterface(display='Crypto text')
     portpair = BridgedPortPair()
@@ -281,7 +289,10 @@ class LinkedPortPairs(Section):
         Enable = T_BOOLEAN()
         Name = T_TEXT(optional=True)
         PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
-        FailoverPair = T_PORTPAIR(optional=True)
+        FailoverPair = T_PORTPAIR(S_CHOICE,
+                                  choices=portpair,
+                                  conditions=['../../interface/failover/eEnable==true'],
+                                  optional=True)
         MTU      = T_DECIMAL(optional=True)
     portpair = LinkedPortPair()
 
@@ -323,9 +334,9 @@ class Interface(Section):
         virtualserver = VirtualServer()
         portpair = FailoverPortPairSettings(optional=True)
 
-    mgmt = ManagementInterface(display='Management', conditions=['../Failover==false'])
+    mgmt = ManagementInterface(display='Management')
     #mgmt2 = ManagementInterface()
-    failover = FailoverManagementInterface(display='Failover', conditions=['../Failover==true'])
+    failover = FailoverManagementInterface(display='Failover')
 
 class Devices(Section):
     '''
