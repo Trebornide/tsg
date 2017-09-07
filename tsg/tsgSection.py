@@ -124,7 +124,20 @@ class Section(Base):
         return schema
 
 class NSection(Section):
-    pass
+    def getSchema(self, indent=0):
+        schema = ''
+        schema += makeKeyValueSchemaLine(indent, 'type', 'array')
+        schema += makeSchemaLine(indent, '"items" : [', '\n')
+        indent += 4
+        schema += makeSchemaLine(indent, '{', '\n')
+        schema += super().getSchema(indent + 4)
+        schema += makeSchemaLine(indent, '}', '\n')
+        indent -= 4
+        schema += makeSchemaLine(indent, ']', '\n')
+
+        return schema
+
+
 
 class OneOf(Section):
     def __init__(self, one_of_list, *args, **kwargs):

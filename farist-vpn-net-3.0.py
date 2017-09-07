@@ -258,7 +258,7 @@ class RoutedPortPairs(Section):
         TunnelForwarding = T_BOOLEAN(default=False)
         FailoverPair = T_PORTPAIR(S_CHOICE,
                                   choices=portpair,
-                                  conditions=['../../interface/failover/eEnable==true'],
+                                  conditions=['../../interface/failover/enable==true'],
                                   optional=True)
         clear = RoutedInterface(display='Clear text')
         crypto = RoutedInterfaceDHCP(display='Crypto text')
@@ -276,7 +276,7 @@ class BridgedPortPairs(Section):
         PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         FailoverPair = T_PORTPAIR(S_CHOICE,
                                   choices=portpair,
-                                  conditions=['../../interface/failover/eEnable==true'],
+                                  conditions=['../../interface/failover/enable==true'],
                                   optional=True)
         clear = LinkInterface(display='Clear text')
         crypto = RoutedInterfaceDHCP(display='Crypto text')
@@ -292,7 +292,7 @@ class LinkedPortPairs(Section):
         PortPair = T_PORTPAIR(S_CHOICE, choices=portpair)
         FailoverPair = T_PORTPAIR(S_CHOICE,
                                   choices=portpair,
-                                  conditions=['../../interface/failover/eEnable==true'],
+                                  conditions=['../../interface/failover/enable==true'],
                                   optional=True)
         MTU      = T_DECIMAL(optional=True)
     portpair = LinkedPortPair()
