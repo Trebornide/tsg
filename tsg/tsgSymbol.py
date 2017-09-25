@@ -31,6 +31,7 @@ class Symbol(Base):
         schema = ''
         schema += makeKeyValueSchemaLine(indent, 'type', self.type )
         schema += makeKeyValueSchemaLine(indent, 't_type', self.tType)
+        schema += makeKeyValueSchemaLine(indent, 's_type', S_Type.tostring(self.sType))
 
         # Options
         if self.argument_options != None:

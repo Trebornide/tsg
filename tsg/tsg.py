@@ -1,4 +1,5 @@
 from tsg import *
+import json
 from copy import deepcopy
 import types
 
@@ -33,7 +34,10 @@ def makeKeyValueSchemaLine(indent, key, value, line_end=',\n'):
         else:
             key_value_string += 'false'
     else:
-        key_value_string += str(value)
+        # The right hand side value looks the same in python and JSON apart from quoing chars.
+        # json lib helps us do the conversion.
+        key_value_string += json.dumps(value)
+
     schema_line = makeSchemaLine(indent, key_value_string, line_end)
     return schema_line
 

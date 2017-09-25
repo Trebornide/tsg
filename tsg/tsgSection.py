@@ -22,7 +22,8 @@ class Section(Base):
         return options
 
     def getOwnSpec(self, path=[]):
-        specLine = 'section('
+        specLine = '\n'
+        specLine += 'section('
         for p in path:
             specLine += '\'' + p + '\''
             specLine += ', '
@@ -47,6 +48,7 @@ class Section(Base):
 
         # Comment spec file using class doc
         if self.__doc__ != None:
+            spec+='\n'
             for docLine in self.__doc__.split('\n'):
                 spec += '// ' + docLine.strip() + '\n'
 
@@ -73,8 +75,8 @@ class Section(Base):
             nextLevelPath.append(k1)
             spec += v1.getSpec(nextLevelPath)
 
-        spec += '\n' \
-                ''
+        # Make spec have space after each section end.
+        # spec += '\n'
         return spec
 
     def getSchema(self, indent=0):
@@ -122,7 +124,20 @@ class Section(Base):
         return schema
 
 class NSection(Section):
-    pass
+    def getSchema(self, indent=0):
+        schema = ''
+        schema += makeKeyValueSchemaLine(indent, 'type', 'array')
+        schema += makeSchemaLine(indent, '"items" : [', '\n')
+        indent += 4
+        schema += makeSchemaLine(indent, '{', '\n')
+        schema += super().getSchema(indent + 4)
+        schema += makeSchemaLine(indent, '}', '\n')
+        indent -= 4
+        schema += makeSchemaLine(indent, ']', '\n')
+
+        return schema
+
+
 
 class OneOf(Section):
     def __init__(self, one_of_list, *args, **kwargs):
