@@ -189,12 +189,14 @@ class CAdminClientSettings(Section):
     Port = T_PORT(default=443, optional=True)
 
 class Networks(NSection):
+    '''Network'''
     Enable  = T_BOOLEAN(default=True)
     Name    = T_TEXT(optional=True)
     Address = T_IP_ADDRESS(mask=True)
     Gateway = T_IP_ADDRESS(optional=True)
 
 class DHCP(Section):
+    '''DHCP'''
     Enable        = T_BOOLEAN(default=True)
     DNS           = T_BOOLEAN(default=False)
     DefaultRouter = T_BOOLEAN(default=False)
