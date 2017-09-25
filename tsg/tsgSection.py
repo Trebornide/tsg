@@ -72,6 +72,9 @@ class Section(Base):
             nextLevelPath = deepcopy(path)
             nextLevelPath.append(k1)
             spec += v1.getSpec(nextLevelPath)
+
+        spec += '\n' \
+                ''
         return spec
 
     def getSchema(self, indent=0):
