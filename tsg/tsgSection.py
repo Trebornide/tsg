@@ -1,4 +1,5 @@
 from tsg import *
+from copy import deepcopy
 
 class Section(Base):
 
@@ -122,6 +123,29 @@ class Section(Base):
         schema += makeSchemaLine(indent, '}', '\n')
 
         return schema
+
+    def parseConf(self, conf, parent=None, path=[""]):
+        self.parent = parent
+        self.path = path
+
+        if isinstance(conf, object):
+            items = self.__class__.__dict__.items()
+
+            for key, value in conf.items():
+
+                # Find attributes with base class Base() and
+                # sort them in the order they where created.
+                for k1, v1 in items:
+                    if k1 == key:
+                        if isinstance(v1, Base):
+                            path_to_next = deepcopy(path)
+                            path_to_next.append(key)
+                            v1.parseConf(value, self, path_to_next)
+
+            try:
+                self.action(conf, self.parent, self.path)
+            except AttributeError:
+                pass
 
 class NSection(Section):
     def getSchema(self, indent=0):

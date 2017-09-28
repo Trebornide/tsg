@@ -42,3 +42,15 @@ class Symbol(Base):
 
         return schema
 
+
+    def parseConf(self, conf, parent, path):
+        self.parent = parent
+        self.path = path
+
+        if type(conf) == 'str':
+            assert 'string' == self.type
+        try:
+            self.action(conf, self.parent, self.path)
+        except AttributeError:
+            pass
+

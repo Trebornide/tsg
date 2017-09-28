@@ -53,15 +53,3 @@ class Schema(Section):
 
         return spec
 
-    def parseConf(self, conf):
-        if isinstance(conf, object):
-            items = self.__class__.__dict__.items()
-
-            for key, value in conf.items():
-
-                # Find attributes with base class Base() and
-                # sort them in the order they where created.
-                for k1, v1 in items:
-                    if k1 == key:
-                        if isinstance(v1, Base):
-                            v1.parse(value)
